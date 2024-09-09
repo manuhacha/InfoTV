@@ -11,7 +11,6 @@ import Swal from 'sweetalert2';
 
 export class ContentComponent {
 
-url:string = '6d6e96f0'
 key = ''
 
 
@@ -36,6 +35,10 @@ async getKey() {
     this.key = key
     localStorage.setItem('savedkey',this.key)
   }
+}
+deleteKey() {
+  localStorage.removeItem('savedkey')
+  location.reload()
 }
 }
 
