@@ -3,7 +3,7 @@
     <div class="flex justify-center mt-10">
         <input [formControl]="searchControl" placeholder="Search for a Film or TV Show" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:outline-none focus:border-gray-800 w-72 p-2.5">
      </div>
-    <a (click)="sendData()">
+    <a routerLink="search">
         <div *ngIf="searchControl.value && searchedvalue?.Title" class="result mt-2 p-3 flex flex-row items-center mx-auto border rounded-md border-gray-600 hover:bg-gray-300 w-fit text-xs">
             <p class="me-1">{{searchedvalue.Title}}, </p>
             <p class="me-1">{{searchedvalue.Year}}, </p>

@@ -4,12 +4,12 @@ import Swal from 'sweetalert2';
 import { OMDBService } from '../../Services/omdb.service';
 import { NgFor, NgIf } from '@angular/common';
 import { debounceTime, filter, switchMap } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [FormsModule,ReactiveFormsModule, NgIf, NgFor],
+  imports: [FormsModule,ReactiveFormsModule, NgIf, RouterLink],
   templateUrl: './content.component.html',
   styleUrl: './content.component.css'
 })
@@ -55,9 +55,12 @@ ngOnInit() {
     this.searchedvalue.Poster = data.Poster
     this.searchedvalue.Actors = data.Actors
     this.searchedvalue.Awards = data.Awards
-    this.searchedvalue.Director = data.Director
     this.searchedvalue.imdbRating = data.imdbRating
     this.searchedvalue.Plot = data.Plot
+    if (data.Director !== 'N/A') {
+      this.searchedvalue.Director = data.Director
+    }
+    this.service.setSearchedValue(this.searchedvalue)
   });
 
 }
@@ -81,9 +84,6 @@ deleteKey() {
   localStorage.removeItem('savedkey')
   location.reload()
 }
-//Método para enviar los datos de los resultados al componente search
-sendData() {
-  this.router.navigate(['/search'], { state: { filmData: this.searchedvalue } })
-}
+
 }
 
