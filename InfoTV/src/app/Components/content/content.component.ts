@@ -1,23 +1,36 @@
 import { Component } from '@angular/core';
-import { FormsModule, NgModel, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, NgModel, ReactiveFormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { OMDBService } from '../../Services/omdb.service';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
+import { debounceTime, filter, switchMap } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [FormsModule,ReactiveFormsModule, NgIf],
+  imports: [FormsModule,ReactiveFormsModule, NgIf, NgFor],
   templateUrl: './content.component.html',
   styleUrl: './content.component.css'
 })
 
 export class ContentComponent {
 
-filmname = ''
 key = ''
-data: any = null;
-constructor(private service: OMDBService) {  }
+searchControl = new FormControl('');
+searchedvalue = {
+  Title: '',
+  Year: '',
+  Genre: '',
+  Poster: '',
+  Director: '',
+  imdbRating: '',
+  Plot: '',
+  Actors: '',
+  Awards: ''
+}
+
+constructor(private service: OMDBService, private router: Router) {  }
 
 ngOnInit() {
   const savedKey = localStorage.getItem('savedkey');
@@ -26,6 +39,27 @@ ngOnInit() {
     } else {
       this.getKey(); // Solicita la clave si no está guardada
     }
+    
+  //Buscar películas a tiempo real
+  this.searchControl.valueChanges
+  .pipe(
+    debounceTime(600), // Espera 600ms después de que el usuario deje de escribir
+    filter((filmname: string | null): filmname is string => !!filmname && filmname.trim() !== ''), // Filtra valores nulos o vacíos
+    switchMap((filmname: string) => this.service.search(this.key, filmname))
+  )
+  //Guardamos los resultados en la variable 
+  .subscribe((data) => {
+    this.searchedvalue.Title = data.Title
+    this.searchedvalue.Year = data.Year
+    this.searchedvalue.Genre = data.Genre
+    this.searchedvalue.Poster = data.Poster
+    this.searchedvalue.Actors = data.Actors
+    this.searchedvalue.Awards = data.Awards
+    this.searchedvalue.Director = data.Director
+    this.searchedvalue.imdbRating = data.imdbRating
+    this.searchedvalue.Plot = data.Plot
+  });
+
 }
 async getKey() {
   //Modal para introducir la key
@@ -47,29 +81,9 @@ deleteKey() {
   localStorage.removeItem('savedkey')
   location.reload()
 }
-//Buscar películas
-search() {
-  console.log(this.key)
-  this.service.search(this.key,this.filmname).subscribe({
-    next: (res) => {
-      console.log(res)
-      //Rellenamos los datos
-      this.data = {
-        title: res.Title,
-        year: res.Year,
-        imdbRating: res.imdbRating,
-        genre: res.Genre,
-        plot: res.Plot,
-        director: res.Director,
-        awards: res.Awards,
-        actors: res.Actors,
-        img: res.Poster
-      };
-    },
-    error: (err) => {
-
-    }
-  })
+//Método para enviar los datos de los resultados al componente search
+sendData() {
+  this.router.navigate(['/search'], { state: { filmData: this.searchedvalue } })
 }
 }
 

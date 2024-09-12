@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 
 @Injectable({
@@ -7,13 +8,9 @@ import { Injectable } from '@angular/core';
 })
 export class OMDBService {
 
-  private apiURL = ''
-
   constructor(private http: HttpClient) { }
 
-  search(api:string,filmname:string) {
-
-    this.apiURL = 'http://www.omdbapi.com/?apikey=' + api + '&' + 't=' + filmname
-    return this.http.get<any>(this.apiURL)
+  search(api:string,filmname: string): Observable<any> {
+    return this.http.get<any>('http://www.omdbapi.com/?apikey=' + api + '&' + 't=' + filmname);
   }
 }
